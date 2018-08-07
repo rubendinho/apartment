@@ -28,7 +28,8 @@ module Apartment
     #   See the middleware/console declarations below to help with this. Hope to fix that soon.
     #
     config.to_prepare do
-      unless ARGV.any? { |arg| arg =~ /\Aassets:(?:precompile|clean)\z/ }
+      # No need to invoke apartment on basic db:tasks, otherwise connections conflicts will arise
+      unless ARGV.any? { |arg| arg =~ /\Aassets:(?:precompile|clean)\z/ } || ARGV.any? { |arg| arg =~ /\Adb:(?:create|drop|reset)\z/ }
         Apartment::Tenant.init
         Apartment.connection_class.clear_active_connections!
       end
