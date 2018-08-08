@@ -65,8 +65,9 @@ module Apartment
         unless database_exists?(config[:database])
           Apartment.connection.create_database(config[:database], config)
           connection_switch!(config, without_keys: [:schema_search_path])
+        else
+          raise TenantExists, "Impossible to create Tenant: database #{config[:database]} already exists."
         end
-
         schema = first_schema(config[:schema_search_path]) if config[:schema_search_path]
 
         if schema && !schema_exists?(schema)
