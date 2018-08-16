@@ -29,7 +29,9 @@ module Apartment
     #
     config.to_prepare do
       # No need to invoke apartment on basic db:tasks, otherwise connections conflicts will arise
-      unless ARGV.any? { |arg| arg =~ /\Aassets:(?:precompile|clean)\z/ } || ARGV.any? { |arg| arg =~ /\Adb:(?:create|drop|reset)\z/ }
+      unless ARGV.any? { |arg| arg =~ /\Aassets:(?:precompile|clean)\z/ } \
+        || ARGV.any? { |arg| arg =~ /\Adb:(?:create|drop|reset)\z/ } \
+        || ARGV.any? { |arg| arg =~ /\Adb:(?:test)/ }
         Apartment::Tenant.init
         Apartment.connection_class.clear_active_connections!
       end
