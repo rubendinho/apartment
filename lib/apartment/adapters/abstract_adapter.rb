@@ -83,7 +83,7 @@ module Apartment
 
           @current = tenant
 
-          Apartment.connection.clear_query_cache
+          Apartment.connection_class.clear_query_caches_for_current_thread
 
           tenant
         end
@@ -143,6 +143,7 @@ module Apartment
         end
 
         Thread.current[:_apartment_connection_specification_name] = config[:name]
+        Apartment.connection_class.connection_specification_name = config[:name]
         simple_switch(config)
       end
 

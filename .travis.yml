@@ -1,15 +1,32 @@
+addons:
+  postgresql: 9.6
+dist: trusty
 language: ruby
+cache: bundler
+
 rvm:
-  - 2.2.4
-  - 2.3.1
+  - 2.6.3
   - jruby-9.0.5.0
+
 gemfile:
   - gemfiles/rails_5_1.gemfile
+
 bundler_args: --without local
 before_install:
-  - gem install bundler -v '> 1.5.0'
+  - gem update --system
+  - gem install bundler
+
+before_script:
+  - psql -c 'create database apartment_postgresql_test;' -U postgres
+
 env:
   RUBY_GC_MALLOC_LIMIT: 90000000
   RUBY_FREE_MIN: 200000
+
 matrix:
   fast_finish: true
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
