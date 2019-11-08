@@ -15,7 +15,7 @@ module Apartment
     WRITER_METHODS   = [
       :tenant_names, :database_schema_file, :excluded_models,
       :persistent_schemas, :connection_class, :tld_length, :db_migrate_tenants,
-      :seed_data_file, :default_tenant
+      :seed_data_file, :default_tenant, :parallel_migration_threads
     ]
     OTHER_METHODS    = [:tenant_resolver, :resolver_class]
 
@@ -63,6 +63,10 @@ module Apartment
       @default_tenant || tenant_resolver.init_config
     end
 
+    def parallel_migration_threads
+      @parallel_migration_threads || 0
+    end
+
     def persistent_schemas
       @persistent_schemas || []
     end
@@ -80,7 +84,7 @@ module Apartment
     def seed_data_file
       return @seed_data_file if defined?(@seed_data_file)
 
-      @seed_data_file = "#{Rails.root}/db/seeds.rb"
+      @seed_data_file = Rails.root.join('db', 'seeds.rb')
     end
 
     def reset
