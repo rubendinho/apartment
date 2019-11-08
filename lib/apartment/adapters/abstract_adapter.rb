@@ -8,6 +8,8 @@ module Apartment
 
       def initialize
         reset
+      rescue Apartment::TenantNotFound
+        puts "WARN: Unable to connect to default tenant"
       end
 
       def reset
@@ -31,7 +33,7 @@ module Apartment
             difference = current_difference_from(config)
 
             if difference[:host]
-              connection_switch(config, without_keys: [:database, :schema_search_path])
+              connection_switch!(config, without_keys: [:database, :schema_search_path])
             end
 
             create_tenant!(config)
@@ -55,7 +57,7 @@ module Apartment
         difference = current_difference_from(config)
 
         if difference[:host]
-          connection_switch(config, without_keys: [:database])
+          connection_switch!(config, without_keys: [:database])
         end
 
         unless database_exists?(config[:database])
@@ -132,9 +134,7 @@ module Apartment
       end
 
       def connection_switch!(config, without_keys: [])
-        config = config.dup.tap do |c|
-          c.reject{ |k, _| without_keys.include?(k) }
-        end
+        config = config.reject{ |k, _| without_keys.include?(k) }
 
         config.merge!(name: connection_specification_name(config))
 
