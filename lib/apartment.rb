@@ -13,9 +13,10 @@ module Apartment
       :force_reconnect_on_switch, :pool_per_config
     ]
     WRITER_METHODS   = [
-      :tenant_names, :database_schema_file, :excluded_models,
-      :persistent_schemas, :connection_class, :tld_length, :db_migrate_tenants,
-      :seed_data_file, :default_tenant, :parallel_migration_threads
+      :tenant_names, :tenant_db_config, :database_schema_file,
+      :excluded_models, :persistent_schemas, :connection_class, :tld_length,
+      :db_migrate_tenants, :seed_data_file, :default_tenant,
+      :parallel_migration_threads
     ]
     OTHER_METHODS    = [:tenant_resolver, :resolver_class]
 
@@ -42,10 +43,6 @@ module Apartment
       @tenant_names.respond_to?(:call) ? @tenant_names.call : (@tenant_names || [])
     end
 
-    def tenants_with_config
-      extract_tenant_config
-    end
-
     # Whether or not db:migrate should also migrate tenants
     # defaults to true
     def db_migrate_tenants
@@ -69,6 +66,12 @@ module Apartment
 
     def persistent_schemas
       @persistent_schemas || []
+    end
+
+    def tenant_db_config
+      return {} unless @tenant_db_config
+
+      @tenant_db_config.call.transform_values { |v| v.transform_keys(&:to_sym) }
     end
 
     def connection_class
