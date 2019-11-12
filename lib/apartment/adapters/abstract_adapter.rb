@@ -16,6 +16,26 @@ module Apartment
         switch!(Apartment.default_tenant)
       end
 
+      def switch!(tenant = nil)
+        run_callbacks :switch do
+          return reset if tenant.nil?
+
+          config = config_for(tenant)
+
+          if Apartment.force_reconnect_on_switch
+            connection_switch!(config)
+          else
+            switch_tenant(config)
+          end
+
+          @current = tenant
+
+          Apartment.connection_class.clear_query_caches_for_current_thread
+
+          tenant
+        end
+      end
+
       def switch(tenant = nil)
         previous_tenant = @current
         switch!(tenant)
@@ -69,26 +89,6 @@ module Apartment
         @current = tenant
       ensure
         switch!(previous_tenant) rescue reset
-      end
-
-      def switch!(tenant)
-        run_callbacks :switch do
-          return reset if tenant.nil?
-
-          config = config_for(tenant)
-
-          if Apartment.force_reconnect_on_switch
-            connection_switch!(config)
-          else
-            switch_tenant(config)
-          end
-
-          @current = tenant
-
-          Apartment.connection_class.clear_query_caches_for_current_thread
-
-          tenant
-        end
       end
 
       def config_for(tenant)
