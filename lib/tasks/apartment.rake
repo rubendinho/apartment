@@ -7,7 +7,7 @@ apartment_namespace = namespace :apartment do
   task create: 'db:migrate' do
     tenants.each do |tenant|
       begin
-        quietly { Apartment::Tenant.create(tenant) }
+        Apartment::Tenant.create(tenant)
       rescue Apartment::TenantExists => e
         puts e.message
       end
